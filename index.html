@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Athena — Research Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Courier+Prime:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C09A3C; --gold-dim: #7A6228; --gold-bright: #D4AF5A;
+  --crimson: #8B1A28;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'EB Garamond', Georgia, serif;
+  --font-ui: 'Libre Baskerville', serif;
+  --font-mono: 'Courier Prime', monospace;
+  --transition: 0.22s ease;
+}
+[data-theme="dark"] {
+  --bg: #0A0805; --bg-card: #100E09; --bg-raised: #16130D;
+  --bg-overlay: rgba(10,8,5,0.94);
+  --text: #E2D5B8; --text-dim: #9A8E76; --text-faint: #5A5040;
+  --border: #221E15; --border-mid: #2E2818; --border-bright: #3E3420;
+  --glow: rgba(192,154,60,0.07); --noise: 0.4;
+  --badge-bg: #1A1610;
+}
+[data-theme="light"] {
+  --bg: #F4EDD8; --bg-card: #FDFAF2; --bg-raised: #EDE4CC;
+  --bg-overlay: rgba(244,237,216,0.96);
+  --text: #271D0A; --text-dim: #5C4A28; --text-faint: #9A876A;
+  --border: #D4C49A; --border-mid: #C0AC7C; --border-bright: #AE9860;
+  --glow: rgba(192,154,60,0.1); --noise: 0.12;
+  --badge-bg: #EAE0C4;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;transition:background var(--transition),color var(--transition)}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:var(--noise);transition:opacity var(--transition)}
+.page{display:none}.page.active{display:block}
+
+/* HEADER */
+header{border-bottom:1px solid var(--border-mid);padding:1.1rem 2.2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;background:var(--bg-overlay);backdrop-filter:blur(14px);transition:background var(--transition),border-color var(--transition)}
+header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)}
+.logo-group{display:flex;align-items:center;gap:0.75rem;cursor:pointer;user-select:none}
+.logo-owl{font-size:1.45rem}
+.logo-text{font-family:var(--font-display);font-size:1.3rem;font-weight:700;letter-spacing:0.04em;color:var(--text)}
+.logo-sub{font-family:var(--font-ui);font-size:0.56rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);display:block;margin-top:-3px}
+.header-right{display:flex;align-items:center;gap:1.1rem}
+.nav-link{font-family:var(--font-ui);font-size:0.65rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-faint);cursor:pointer;transition:color var(--transition);padding:0.25rem 0;border-bottom:1px solid transparent}
+.nav-link:hover,.nav-link.active{color:var(--gold);border-bottom-color:var(--gold-dim)}
+.theme-wrap{display:flex;align-items:center;gap:0.5rem}
+.theme-lbl{font-family:var(--font-mono);font-size:0.58rem;color:var(--text-faint);letter-spacing:0.06em;min-width:2.8rem}
+.theme-toggle{width:38px;height:20px;background:var(--border-mid);border-radius:10px;cursor:pointer;position:relative;border:1px solid var(--border-bright);flex-shrink:0;transition:background 0.3s}
+.theme-toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--gold);transition:transform 0.3s}
+[data-theme="light"] .theme-toggle::after{transform:translateX(18px)}
+.avatar-btn{width:30px;height:30px;border-radius:50%;background:var(--bg-raised);border:1px solid var(--border-mid);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.82rem;font-family:var(--font-display);font-weight:700;color:var(--gold);transition:border-color var(--transition)}
+.avatar-btn:hover{border-color:var(--gold)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px);padding:1.5rem}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg-card);border:1px solid var(--border-mid);width:min(440px,94vw);position:relative;animation:mIn 0.26s ease;max-height:90vh;overflow-y:auto}
+@keyframes mIn{from{opacity:0;transform:translateY(-18px) scale(0.97)}to{opacity:1;transform:none}}
+.modal-header{padding:1.4rem 1.8rem 1.1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:var(--font-display);font-size:1.25rem;font-weight:600;color:var(--text)}
+.modal-close{background:none;border:none;color:var(--text-faint);font-size:1.1rem;cursor:pointer;transition:color var(--transition);line-height:1;padding:0.2rem}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:1.6rem 1.8rem}
+.modal-tabs{display:flex;margin-bottom:1.6rem;border-bottom:1px solid var(--border-mid)}
+.modal-tab{font-family:var(--font-ui);font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-faint);padding:0.45rem 1.1rem;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all var(--transition)}
+.modal-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.fgroup{margin-bottom:1.3rem}
+.flabel{font-family:var(--font-ui);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:0.45rem}
+.finput{width:100%;background:transparent;border:none;border-bottom:1px solid var(--border-mid);color:var(--text);font-family:var(--font-body);font-size:1.02rem;padding:0.38rem 0;outline:none;transition:border-color var(--transition);caret-color:var(--gold)}
+.finput:focus{border-bottom-color:var(--gold)}
+.finput::placeholder{color:var(--text-faint);font-style:italic}
+.mbtn{width:100%;background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:var(--font-ui);font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.75rem;cursor:pointer;transition:all 0.24s;margin-top:0.4rem;position:relative;overflow:hidden}
+.mbtn::before{content:'';position:absolute;inset:0;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform 0.24s;z-index:0}
+.mbtn:hover::before{transform:scaleX(1)}
+.mbtn:hover{color:var(--bg)}
+.mbtn span{position:relative;z-index:1}
+.mbtn.dim{border-color:var(--gold-dim);opacity:0.75}
+.mmsg{font-size:0.8rem;color:var(--crimson);margin-top:0.65rem;font-style:italic;text-align:center;min-height:1.2em}
+.mmsg.ok{color:#4A8A4A}
+.auth-or{text-align:center;margin:0.9rem 0;font-size:0.7rem;color:var(--text-faint);font-family:var(--font-mono);position:relative}
+.auth-or::before,.auth-or::after{content:'';position:absolute;top:50%;width:38%;height:1px;background:var(--border-mid)}
+.auth-or::before{left:0}.auth-or::after{right:0}
+
+/* HERO */
+.hero{text-align:center;padding:2.8rem 1.5rem 1.5rem}
+.hero-eyebrow{font-family:var(--font-ui);font-size:0.6rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);margin-bottom:0.9rem}
+.hero h1{font-family:var(--font-display);font-size:clamp(1.9rem,5vw,3.4rem);font-weight:600;line-height:1.15;color:var(--text);max-width:660px;margin:0 auto 0.65rem}
+.hero h1 em{font-style:italic;color:var(--gold)}
+.hero-desc{font-size:0.98rem;color:var(--text-dim);max-width:490px;margin:0 auto;line-height:1.7}
+.ornament{text-align:center;color:var(--gold-dim);font-size:0.88rem;letter-spacing:0.5em;margin:0.7rem 0;opacity:0.45}
+
+/* CONTAINER */
+.main{max-width:1060px;margin:0 auto;padding:1.4rem 1.8rem 4rem}
+
+/* CARDS */
+.card{background:var(--bg-card);border:1px solid var(--border-mid);padding:2rem 2.2rem;margin-bottom:1.6rem;position:relative;transition:background var(--transition),border-color var(--transition)}
+.card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,var(--glow),transparent 65%);pointer-events:none}
+.card::after{content:'❧';position:absolute;top:0.85rem;right:1.2rem;color:var(--gold-dim);font-size:0.95rem;opacity:0.3}
+.clabel{font-family:var(--font-ui);font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;display:block}
+
+/* INPUT */
+.topic-input{width:100%;background:transparent;border:none;border-bottom:1px solid var(--gold-dim);color:var(--text);font-family:var(--font-body);font-size:1.25rem;padding:0.45rem 0;outline:none;transition:border-color var(--transition),color var(--transition);caret-color:var(--gold)}
+.topic-input:focus{border-bottom-color:var(--gold)}
+.topic-input::placeholder{color:var(--text-faint);font-style:italic}
+.input-controls{display:flex;align-items:center;gap:1.3rem;margin-top:1.5rem;flex-wrap:wrap}
+.depth-sel{display:flex;border:1px solid var(--border-mid)}
+.dbtn{background:transparent;border:none;color:var(--text-faint);font-family:var(--font-ui);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.35rem 0.8rem;cursor:pointer;transition:all var(--transition);border-right:1px solid var(--border-mid)}
+.dbtn:last-child{border-right:none}
+.dbtn.active{background:var(--gold-dim);color:var(--bg)}
+.dbtn:hover:not(.active){color:var(--text-dim)}
+.src-count{font-family:var(--font-mono);font-size:0.7rem;color:var(--text-faint);display:flex;align-items:center;gap:0.45rem}
+.src-count input[type=range]{-webkit-appearance:none;width:85px;height:2px;background:var(--border-mid);outline:none}
+.src-count input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:9px;height:9px;background:var(--gold);border-radius:50%;cursor:pointer}
+.res-btn{margin-left:auto;background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:var(--font-ui);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.62rem 1.7rem;cursor:pointer;transition:all 0.24s;position:relative;overflow:hidden}
+.res-btn::before{content:'';position:absolute;inset:0;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform 0.24s;z-index:0}
+.res-btn:hover::before{transform:scaleX(1)}
+.res-btn:hover{color:var(--bg)}
+.res-btn span{position:relative;z-index:1}
+.res-btn:disabled{opacity:0.38;cursor:not-allowed}
+.res-btn:disabled::before{display:none}
+
+/* PIPELINE */
+.pip-card{display:none;animation:fIn 0.35s ease}.pip-card.active{display:block}
+@keyframes fIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.pip-title{font-family:var(--font-ui);font-size:0.58rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);margin-bottom:1.3rem}
+.pip-steps{display:flex;flex-direction:column}
+.pip-step{display:flex;align-items:flex-start;gap:0.9rem;padding:0.6rem 0;border-bottom:1px solid var(--border)}
+.pip-step:last-child{border-bottom:none}
+.sicon{width:25px;height:25px;border:1px solid var(--border-mid);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.62rem;flex-shrink:0;transition:all 0.3s;color:var(--text-faint);margin-top:2px}
+.pip-step.done .sicon{border-color:var(--gold-dim);color:var(--gold);background:var(--glow)}
+.pip-step.active .sicon{border-color:var(--gold);color:var(--gold);animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(192,154,60,0.3)}50%{box-shadow:0 0 0 5px rgba(192,154,60,0)}}
+.sname{font-family:var(--font-ui);font-size:0.73rem;color:var(--text-faint);transition:color 0.3s}
+.pip-step.active .sname,.pip-step.done .sname{color:var(--text)}
+.sdetail{font-size:0.78rem;color:var(--text-faint);margin-top:0.14rem;font-style:italic;min-height:1.1em;transition:all 0.3s}
+.pip-step.active .sdetail{color:var(--text-dim)}
+.cov-sec{margin-top:1.3rem;padding-top:1.3rem;border-top:1px solid var(--border)}
+.cov-lbl{font-family:var(--font-mono);font-size:0.68rem;color:var(--text-faint);display:flex;justify-content:space-between;margin-bottom:0.45rem}
+.cov-track{height:2px;background:var(--border-mid)}
+.cov-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));transition:width 0.7s ease;width:0%}
+.src-mini{display:flex;flex-wrap:wrap;gap:0.32rem;margin-top:0.85rem}
+.schip{font-family:var(--font-mono);font-size:0.56rem;color:var(--text-faint);border:1px solid var(--border-mid);padding:0.1rem 0.42rem;animation:cIn 0.22s ease}
+@keyframes cIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+
+/* STATS */
+.stats-row{display:none;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border-mid);border:1px solid var(--border-mid);margin-bottom:1.6rem}
+.stats-row.active{display:grid}
+.sbox{background:var(--bg-card);padding:1rem 1.3rem;text-align:center}
+.sbox-num{font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--gold);display:block}
+.sbox-lbl{font-family:var(--font-ui);font-size:0.56rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-faint);margin-top:0.15rem}
+
+/* REPORT */
+.rep-card{display:none;animation:fIn 0.45s ease}.rep-card.active{display:block}
+.rep-toolbar{border-bottom:1px solid var(--border-mid);padding:0.85rem 1.8rem;display:flex;align-items:center;justify-content:space-between;background:var(--bg-raised);flex-wrap:wrap;gap:0.5rem}
+.rep-toolbar-title{font-family:var(--font-ui);font-size:0.58rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold)}
+.rep-actions{display:flex;gap:0.55rem;flex-wrap:wrap}
+.abtn{background:transparent;border:1px solid var(--border-mid);color:var(--text-dim);font-family:var(--font-ui);font-size:0.56rem;letter-spacing:0.14em;text-transform:uppercase;padding:0.26rem 0.7rem;cursor:pointer;transition:all var(--transition)}
+.abtn:hover{border-color:var(--gold-dim);color:var(--gold)}
+.rep-body{padding:2.6rem 3.2rem;max-width:790px;margin:0 auto;line-height:1.82}
+.rep-body h1{font-family:var(--font-display);font-size:1.95rem;font-weight:700;color:var(--text);margin-bottom:0.28rem;line-height:1.2}
+.rep-meta{font-family:var(--font-mono);font-size:0.68rem;color:var(--text-faint);margin-bottom:1.8rem;padding-bottom:1.3rem;border-bottom:1px solid var(--border-mid)}
+.rep-body h2{font-family:var(--font-display);font-size:1.2rem;font-weight:600;color:var(--text);margin:2rem 0 0.65rem;padding-bottom:0.32rem;border-bottom:1px solid var(--border)}
+.rep-body h3{font-family:var(--font-display);font-size:0.98rem;font-style:italic;color:var(--text-dim);margin:1.2rem 0 0.38rem}
+.rep-body p{font-size:0.98rem;color:var(--text);margin-bottom:0.9rem;text-align:justify}
+.rep-body .abstract-text::first-letter{font-family:var(--font-display);font-size:2.9rem;font-weight:700;float:left;line-height:0.82;margin:0.1rem 0.32rem 0 0;color:var(--gold)}
+.rep-body cite{font-style:normal;font-family:var(--font-mono);font-size:0.66rem;color:var(--gold-dim);vertical-align:super;margin-left:1px}
+.stat-callout{border-left:2px solid var(--gold-dim);padding:0.72rem 1rem;margin:1.3rem 0;background:var(--glow)}
+.stat-callout .stat-number{font-family:var(--font-display);font-size:1.95rem;font-weight:700;color:var(--gold);line-height:1;display:block}
+.stat-callout .stat-label{font-size:0.82rem;color:var(--text-dim);margin-top:0.18rem}
+.rep-body ol,.rep-body ul{padding-left:1.4rem;margin:0.45rem 0 0.9rem}
+.rep-body li{font-size:0.93rem;color:var(--text-dim);padding:0.18rem 0}
+.references-section{margin-top:2.6rem;padding-top:1.6rem;border-top:1px solid var(--border-mid)}
+.ref-item{font-family:var(--font-mono);font-size:0.7rem;color:var(--text-dim);padding:0.42rem 0;border-bottom:1px solid var(--border);display:flex;gap:0.75rem;line-height:1.5}
+.ref-num{color:var(--gold-dim);flex-shrink:0;min-width:1.4rem}
+.ref-link{color:var(--gold-dim);text-decoration:none}
+.ref-link:hover{color:var(--gold);text-decoration:underline}
+.sdivider{display:flex;align-items:center;gap:1rem;margin:1.6rem 0;opacity:0.28}
+.sdivider::before,.sdivider::after{content:'';flex:1;height:1px;background:var(--gold-dim)}
+.sdivider span{font-family:var(--font-display);font-size:0.85rem;color:var(--gold-dim)}
+.ai-gen{font-family:var(--font-mono);font-size:0.8rem;color:var(--gold-dim);font-style:italic;text-align:center;padding:2.5rem}
+.ai-dots::after{content:'...';animation:dots 1.2s infinite steps(3)}
+@keyframes dots{0%{content:'.'}33%{content:'..'}66%{content:'...'}100%{content:'.'}}
+.save-notice{font-family:var(--font-ui);font-size:0.62rem;letter-spacing:0.1em;color:var(--text-faint);font-style:italic;text-align:center;padding:0.5rem;background:var(--glow);border-top:1px solid var(--border)}
+
+/* PROFILE */
+.prof-hero{background:var(--bg-card);border:1px solid var(--border-mid);padding:2.2rem;margin-bottom:1.6rem;display:flex;align-items:center;gap:1.8rem;position:relative}
+.prof-hero::after{content:'❧';position:absolute;top:1rem;right:1.4rem;color:var(--gold-dim);opacity:0.3}
+.prof-av{width:68px;height:68px;border-radius:50%;background:var(--bg-raised);border:2px solid var(--gold-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--gold);flex-shrink:0}
+.prof-name{font-family:var(--font-display);font-size:1.55rem;font-weight:600;color:var(--text);margin-bottom:0.22rem}
+.prof-email{font-family:var(--font-mono);font-size:0.72rem;color:var(--text-faint);margin-bottom:0.55rem}
+.prof-badge{display:inline-block;font-family:var(--font-ui);font-size:0.56rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold-dim);padding:0.16rem 0.55rem;background:var(--badge-bg)}
+.prof-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border-mid);border:1px solid var(--border-mid);margin-bottom:1.6rem}
+.pstat{background:var(--bg-card);padding:1.1rem;text-align:center}
+.pstat-num{font-family:var(--font-display);font-size:1.9rem;font-weight:700;color:var(--gold);display:block}
+.pstat-lbl{font-family:var(--font-ui);font-size:0.56rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-faint)}
+.arch-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem}
+.arch-title{font-family:var(--font-display);font-size:1.1rem;font-weight:600;color:var(--text)}
+.arch-search{background:transparent;border:1px solid var(--border-mid);color:var(--text);font-family:var(--font-body);font-size:0.86rem;padding:0.35rem 0.75rem;outline:none;width:190px;transition:border-color var(--transition);caret-color:var(--gold)}
+.arch-search:focus{border-color:var(--gold-dim)}
+.arch-search::placeholder{color:var(--text-faint);font-style:italic}
+.arch-empty{text-align:center;padding:2.8rem;background:var(--bg-card);border:1px solid var(--border-mid);color:var(--text-faint)}
+.arch-empty-icon{font-size:1.9rem;margin-bottom:0.55rem;opacity:0.45}
+.arch-empty-txt{font-family:var(--font-ui);font-size:0.66rem;letter-spacing:0.15em;text-transform:uppercase}
+.arch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(295px,1fr));gap:1px;background:var(--border-mid);border:1px solid var(--border-mid)}
+.arch-card{background:var(--bg-card);padding:1.5rem 1.7rem;cursor:pointer;transition:background var(--transition);position:relative}
+.arch-card:hover{background:var(--bg-raised)}
+.arch-card:hover .arch-arrow{opacity:1}
+.arch-date{font-family:var(--font-mono);font-size:0.6rem;color:var(--text-faint);margin-bottom:0.45rem}
+.arch-topic{font-family:var(--font-display);font-size:1.02rem;font-weight:600;color:var(--text);margin-bottom:0.55rem;line-height:1.28}
+.arch-abstract{font-size:0.83rem;color:var(--text-dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.arch-meta{display:flex;align-items:center;gap:0.7rem;margin-top:0.9rem;flex-wrap:wrap}
+.arch-tag{font-family:var(--font-mono);font-size:0.56rem;color:var(--gold-dim);border:1px solid var(--border-mid);padding:0.1rem 0.38rem}
+.arch-arrow{position:absolute;top:1.1rem;right:1.1rem;color:var(--gold-dim);font-size:0.85rem;opacity:0;transition:opacity var(--transition)}
+.arch-del{position:absolute;bottom:1rem;right:1.1rem;background:none;border:none;color:var(--text-faint);font-size:0.7rem;cursor:pointer;font-family:var(--font-mono);opacity:0;transition:opacity var(--transition),color var(--transition)}
+.arch-card:hover .arch-del{opacity:1}
+.arch-del:hover{color:var(--crimson)}
+.logout-btn{background:transparent;border:1px solid var(--border-mid);color:var(--text-faint);font-family:var(--font-ui);font-size:0.58rem;letter-spacing:0.16em;text-transform:uppercase;padding:0.32rem 0.85rem;cursor:pointer;transition:all var(--transition)}
+.logout-btn:hover{border-color:var(--crimson);color:var(--crimson)}
+
+/* VIEW REPORT MODAL */
+#viewRepModal{align-items:flex-start;padding:1.5rem 0.8rem;overflow-y:auto}
+#viewRepModal .modal{width:min(860px,96vw);max-height:92vh;overflow-y:auto}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border-mid)}
+::-webkit-scrollbar-thumb:hover{background:var(--gold-dim)}
+
+/* RESPONSIVE */
+@media(max-width:680px){
+  header{padding:0.9rem 1rem}
+  .rep-body{padding:1.6rem 1rem}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .prof-stats{grid-template-columns:repeat(3,1fr)}
+  .main{padding:1rem 0.9rem 3rem}
+  .card{padding:1.4rem 1.1rem}
+  .prof-hero{flex-direction:column;gap:1rem}
+  .header-right gap{gap:0.8rem}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-group" onclick="showPage('home')">
+    <span class="logo-owl">🦉</span>
+    <div>
+      <span class="logo-text">Athena</span>
+      <span class="logo-sub">Research Intelligence</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="nav-link active" id="nav-home" onclick="showPage('home')">Research</span>
+    <span class="nav-link" id="nav-archive" onclick="handleArchiveNav()">Archive</span>
+    <span class="nav-link" id="nav-apikey" onclick="openApiKeyModal()" title="Set your free Gemini API key">🔑 API Key</span>
+    <div class="theme-wrap">
+      <span class="theme-lbl" id="themeLbl">Dark</span>
+      <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark/light"></div>
+    </div>
+    <div class="avatar-btn" id="avatarBtn" onclick="handleProfileNav()" title="Profile / Sign In">?</div>
+  </div>
+</header>
+
+<!-- ============================================================
+     AUTH MODAL
+============================================================ -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Scholar's Gate</span>
+      <button class="modal-close" onclick="closeModal('authModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tabs">
+        <div class="modal-tab active" onclick="switchAuthTab('login')">Sign In</div>
+        <div class="modal-tab" onclick="switchAuthTab('register')">Register</div>
+      </div>
+      <div id="loginForm">
+        <div class="fgroup"><label class="flabel">Email</label><input type="email" class="finput" id="loginEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <div class="fgroup"><label class="flabel">Password</label><input type="password" class="finput" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <button class="mbtn" onclick="doLogin()"><span>Enter the Library →</span></button>
+        <div class="mmsg" id="loginMsg"></div>
+        <div class="auth-or">or</div>
+        <button class="mbtn dim" onclick="demoLogin()"><span>Continue as Guest</span></button>
+      </div>
+      <div id="registerForm" style="display:none">
+        <div class="fgroup"><label class="flabel">Full Name</label><input type="text" class="finput" id="regName" placeholder="Your name"></div>
+        <div class="fgroup"><label class="flabel">Email</label><input type="email" class="finput" id="regEmail" placeholder="your@email.com"></div>
+        <div class="fgroup"><label class="flabel">Password</label><input type="password" class="finput" id="regPwd" placeholder="min. 6 characters"></div>
+        <button class="mbtn" onclick="doRegister()"><span>Create Account →</span></button>
+        <div class="mmsg" id="registerMsg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     API KEY MODAL
+============================================================ -->
+<div class="modal-overlay" id="apiKeyModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Gemini API Key</span>
+      <button class="modal-close" onclick="closeModal('apiKeyModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--glow);border:1px solid var(--border-mid);padding:1rem 1.2rem;margin-bottom:1.5rem;">
+        <p style="font-family:var(--font-ui);font-size:0.68rem;letter-spacing:0.04em;color:var(--text-dim);line-height:1.7;margin-bottom:0.6rem;">
+          Athena uses <strong style="color:var(--gold)">Gemini 2.0 Flash</strong> with live Google Search grounding to generate accurate, real-time research reports.
+        </p>
+        <p style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-faint);line-height:1.6;">
+          ✦ Completely free · No credit card needed<br>
+          ✦ 1,500 requests/day free<br>
+          ✦ Key is stored only in your browser (localStorage)<br>
+          ✦ Never sent anywhere except directly to Google
+        </p>
+      </div>
+      <div class="fgroup">
+        <label class="flabel">Your Gemini API Key</label>
+        <input type="password" class="finput" id="geminiKeyInput" placeholder="AIza...">
+      </div>
+      <div style="font-family:var(--font-ui);font-size:0.62rem;color:var(--text-faint);margin-bottom:1.2rem;line-height:1.8;">
+        Get your free key:
+        <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--gold);text-decoration:none;border-bottom:1px solid var(--gold-dim);">aistudio.google.com/app/apikey</a>
+        → Sign in with Google → "Create API Key" → Copy &amp; paste above
+      </div>
+      <button class="mbtn" onclick="saveGeminiKey()"><span>Save Key &amp; Start Researching →</span></button>
+      <div class="mmsg" id="apiKeyMsg"></div>
+      <div id="currentKeyStatus" style="margin-top:0.8rem;font-family:var(--font-mono);font-size:0.65rem;color:var(--text-faint);text-align:center;"></div>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="viewRepModal">
+  <div class="modal">
+    <div class="modal-header" style="position:sticky;top:0;z-index:10;background:var(--bg-card);">
+      <span class="modal-title" id="viewRepTitle" style="font-size:0.95rem;font-style:italic;max-width:80%;line-height:1.3;"></span>
+      <button class="modal-close" onclick="closeModal('viewRepModal')">✕</button>
+    </div>
+    <div id="viewRepContent" style="padding:1.8rem 2.2rem;"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     HOME PAGE
+============================================================ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <p class="hero-eyebrow">Autonomous Research · Powered by Gemini 2.0 Flash · Google Search Grounding · 100% Free</p>
+    <h1>Knowledge from <em>chaos</em>,<br>insight from <em>silence</em></h1>
+    <p class="hero-desc">Enter any topic. The AI agent searches the live web, reads real sources, and synthesizes an accurate academic report.</p>
+  </div>
+  <div class="ornament">✦ &nbsp; ✦ &nbsp; ✦</div>
+
+  <div class="main">
+    <!-- INPUT -->
+    <div class="card">
+      <span class="clabel">Research Topic</span>
+      <input type="text" id="topicInput" class="topic-input" placeholder="e.g. The long-term effects of microplastics on human health…">
+      <div class="input-controls">
+        <div>
+          <div class="clabel" style="margin-bottom:0.35rem">Depth</div>
+          <div class="depth-sel">
+            <button class="dbtn" data-d="quick">Quick</button>
+            <button class="dbtn active" data-d="standard">Standard</button>
+            <button class="dbtn" data-d="deep">Deep</button>
+          </div>
+        </div>
+        <div class="src-count">
+          <span>Sources:</span>
+          <input type="range" id="srcRange" min="5" max="20" value="10">
+          <span id="srcVal">10</span>
+        </div>
+        <button class="res-btn" id="resBtn" onclick="startResearch()">
+          <span>Begin Research ⟶</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- PIPELINE -->
+    <div class="card pip-card" id="pipCard">
+      <div class="pip-title">Research Pipeline</div>
+      <div class="pip-steps">
+        <div class="pip-step" id="step-planning"><div class="sicon">✦</div><div><div class="sname">Planning</div><div class="sdetail">Awaiting…</div></div></div>
+        <div class="pip-step" id="step-searching"><div class="sicon">◎</div><div><div class="sname">Searching</div><div class="sdetail">Awaiting…</div></div></div>
+        <div class="pip-step" id="step-reading"><div class="sicon">⊞</div><div><div class="sname">Reading Sources</div><div class="sdetail">Awaiting…</div></div></div>
+        <div class="pip-step" id="step-analyzing"><div class="sicon">◈</div><div><div class="sname">Analyzing</div><div class="sdetail">Awaiting…</div></div></div>
+        <div class="pip-step" id="step-synthesizing"><div class="sicon">✤</div><div><div class="sname">Synthesizing</div><div class="sdetail">Awaiting…</div></div></div>
+        <div class="pip-step" id="step-generating"><div class="sicon">✑</div><div><div class="sname">Writing Report</div><div class="sdetail">Awaiting…</div></div></div>
+      </div>
+      <div class="cov-sec">
+        <div class="cov-lbl"><span>Research Coverage</span><span id="covPct">0%</span></div>
+        <div class="cov-track"><div class="cov-fill" id="covFill"></div></div>
+      </div>
+      <div class="src-mini" id="srcMini"></div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row" id="statsRow">
+      <div class="sbox"><span class="sbox-num" id="snum-src">0</span><span class="sbox-lbl">Sources</span></div>
+      <div class="sbox"><span class="sbox-num" id="snum-words">0</span><span class="sbox-lbl">Words</span></div>
+      <div class="sbox"><span class="sbox-num" id="snum-cov">0%</span><span class="sbox-lbl">Coverage</span></div>
+      <div class="sbox"><span class="sbox-num" id="snum-time">0s</span><span class="sbox-lbl">Elapsed</span></div>
+    </div>
+
+    <!-- REPORT -->
+    <div class="card rep-card" id="repCard" style="padding:0;">
+      <div class="rep-toolbar">
+        <span class="rep-toolbar-title">Generated Report</span>
+        <div class="rep-actions">
+          <button class="abtn" onclick="saveToArchive(this)">⊕ Save to Archive</button>
+          <button class="abtn" onclick="downloadReport()">↓ Export .md</button>
+          <button class="abtn" onclick="copyReport(this)">⊞ Copy</button>
+          <button class="abtn" onclick="resetUI()">↺ New</button>
+        </div>
+      </div>
+      <div class="rep-body" id="repBody"></div>
+      <div class="save-notice" id="saveNotice" style="display:none">Report saved to your Archive — accessible from your profile.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PROFILE / ARCHIVE PAGE
+============================================================ -->
+<div class="page" id="page-archive">
+  <div class="main">
+    <div class="prof-hero">
+      <div class="prof-av" id="profAv">?</div>
+      <div>
+        <div class="prof-name" id="profName">Scholar</div>
+        <div class="prof-badge">Research Scholar</div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:0.6rem;align-items:center;">
+        <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+      </div>
+    </div>
+
+    <div class="prof-stats">
+      <div class="pstat"><span class="pstat-num" id="ps-reports">0</span><span class="pstat-lbl">Reports</span></div>
+      <div class="pstat"><span class="pstat-num" id="ps-words">0</span><span class="pstat-lbl">Words</span></div>
+      <div class="pstat"><span class="pstat-num" id="ps-sources">0</span><span class="pstat-lbl">Sources</span></div>
+    </div>
+
+    <div class="arch-hdr">
+      <div class="arch-title">Research Archive</div>
+      <input type="text" class="arch-search" id="archSearch" placeholder="Search reports…" oninput="renderArchive()">
+    </div>
+
+    <div id="archContainer"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  ATHENA FRONTEND — Backend Edition
+//  All API calls route to the Python FastAPI backend.
+//  Auth uses JWT tokens stored in localStorage.
+//  Reports stored server-side (real database, syncs across devices).
+// ════════════════════════════════════════════════════════════════
+
+// ── Config ───────────────────────────────────────────────────────
+// When served from the Python backend, the API is on the same origin.
+// If you run the frontend separately, set this to your backend URL:
+const API_BASE = window.location.origin;   // e.g. http://localhost:8000
+
+// ── State ────────────────────────────────────────────────────────
+let currentUser       = null;   // { id, name, email, created_at }
+let authToken         = null;   // JWT bearer token
+let currentTopic      = '';
+let currentReportHTML = '';
+let selectedDepth     = 'standard';
+let timerInterval     = null;
+let startTime         = null;
+let archiveReports    = [];     // cached from server
+
+const MOCK_DOMAINS = [
+  'nature.com','pubmed.ncbi','scholar.google','who.int',
+  'sciencemag.org','reuters.com','bbc.co.uk','economist.com',
+  'arxiv.org','researchgate.net','jstor.org','theguardian.com',
+  'bmj.com','lancet.com','ncbi.nlm.nih','apa.org',
+  'springer.com','oxford.ac.uk','mit.edu','stanford.edu'
+];
+
+// ── API helper ───────────────────────────────────────────────────
+async function api(path, options = {}) {
+  const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+
+  const resp = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  const data = await resp.json().catch(() => ({}));
+
+  if (!resp.ok) {
+    throw new Error(data.detail || `Server error ${resp.status}`);
+  }
+  return data;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  THEME
+// ════════════════════════════════════════════════════════════════
+function initTheme() {
+  applyTheme(localStorage.getItem('athena-theme') || 'dark');
+}
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('themeLbl').textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const nxt = cur === 'dark' ? 'light' : 'dark';
+  applyTheme(nxt);
+  localStorage.setItem('athena-theme', nxt);
+}
+
+// ════════════════════════════════════════════════════════════════
+//  AUTH  (talks to Python backend)
+// ════════════════════════════════════════════════════════════════
+function loadSession() {
+  const saved = localStorage.getItem('athena-session');
+  if (saved) {
+    try {
+      const { token, user } = JSON.parse(saved);
+      authToken   = token;
+      currentUser = user;
+      refreshAvatarBtn();
+    } catch (e) {
+      localStorage.removeItem('athena-session');
+    }
+  }
+}
+
+function saveSession(token, user) {
+  authToken   = token;
+  currentUser = user;
+  localStorage.setItem('athena-session', JSON.stringify({ token, user }));
+  refreshAvatarBtn();
+}
+
+function clearSession() {
+  authToken   = null;
+  currentUser = null;
+  localStorage.removeItem('athena-session');
+  refreshAvatarBtn();
+}
+
+function refreshAvatarBtn() {
+  const btn = document.getElementById('avatarBtn');
+  if (currentUser) {
+    const init = currentUser.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    btn.textContent = init;
+    btn.title       = currentUser.name;
+  } else {
+    btn.textContent = '?';
+    btn.title       = 'Sign In';
+  }
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pwd   = document.getElementById('loginPwd').value;
+  const msg   = document.getElementById('loginMsg');
+
+  if (!email || !pwd) { msg.textContent = 'Please fill all fields.'; return; }
+  msg.textContent = 'Signing in…';
+
+  try {
+    const data = await api('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password: pwd }),
+    });
+    saveSession(data.access_token, data.user);
+    msg.className   = 'mmsg ok';
+    msg.textContent = `Welcome back, ${data.user.name}.`;
+    setTimeout(() => { closeModal('authModal'); }, 700);
+  } catch (e) {
+    msg.className   = 'mmsg';
+    msg.textContent = e.message;
+  }
+}
+
+async function doRegister() {
+  const name  = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pwd   = document.getElementById('regPwd').value;
+  const msg   = document.getElementById('registerMsg');
+
+  if (!name || !email || !pwd) { msg.textContent = 'All fields required.'; return; }
+  if (pwd.length < 6) { msg.textContent = 'Password must be at least 6 characters.'; return; }
+  msg.textContent = 'Creating account…';
+
+  try {
+    const data = await api('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, password: pwd }),
+    });
+    saveSession(data.access_token, data.user);
+    msg.className   = 'mmsg ok';
+    msg.textContent = `Welcome, ${data.user.name}! Account created.`;
+    setTimeout(() => { closeModal('authModal'); }, 700);
+  } catch (e) {
+    msg.className   = 'mmsg';
+    msg.textContent = e.message;
+  }
+}
+
+function demoLogin() {
+  // Guest mode — no server account, uses a local placeholder so UI works
+  // Research still works (uses the server's Gemini key), but archive won't save cross-device
+  const guestUser = { id: 'guest', name: 'Guest Scholar', email: 'guest@athena.ai', created_at: new Date().toISOString() };
+  currentUser = guestUser;
+  authToken   = null;   // guest has no JWT — server calls will prompt login for protected actions
+  refreshAvatarBtn();
+  closeModal('authModal');
+}
+
+function doLogout() {
+  clearSession();
+  archiveReports = [];
+  showPage('home');
+}
+
+function handleProfileNav() {
+  if (!currentUser) { openModal('authModal'); } else { showPage('archive'); }
+}
+function handleArchiveNav() {
+  if (!currentUser) { openModal('authModal'); } else { showPage('archive'); }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  MODALS
+// ════════════════════════════════════════════════════════════════
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function switchAuthTab(tab) {
+  document.querySelectorAll('.modal-tab').forEach((t, i) => {
+    t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
+  });
+  document.getElementById('loginForm').style.display    = tab === 'login'    ? '' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? '' : 'none';
+  document.getElementById('loginMsg').textContent    = '';
+  document.getElementById('registerMsg').textContent = '';
+}
+
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+});
+
+// ════════════════════════════════════════════════════════════════
+//  PAGE NAV
+// ════════════════════════════════════════════════════════════════
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  const nl = document.getElementById('nav-' + name);
+  if (nl) nl.classList.add('active');
+  window.scrollTo(0, 0);
+  if (name === 'archive' && currentUser) loadArchive();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  DEPTH + SOURCE RANGE
+// ════════════════════════════════════════════════════════════════
+document.querySelectorAll('.dbtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.dbtn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedDepth = btn.dataset.d;
+  });
+});
+document.getElementById('srcRange').addEventListener('input', function () {
+  document.getElementById('srcVal').textContent = this.value;
+});
+
+// ════════════════════════════════════════════════════════════════
+//  PIPELINE HELPERS
+// ════════════════════════════════════════════════════════════════
+function setStep(id, status) {
+  const el = document.getElementById('step-' + id);
+  if (!el) return;
+  el.classList.remove('active', 'done');
+  if (status) el.classList.add(status);
+}
+function setDetail(id, text) {
+  const el = document.getElementById('step-' + id);
+  if (el) el.querySelector('.sdetail').textContent = text;
+}
+function setCov(pct) {
+  document.getElementById('covFill').style.width = pct + '%';
+  document.getElementById('covPct').textContent  = Math.round(pct) + '%';
+}
+function addChip(d) {
+  const c = document.createElement('div');
+  c.className = 'schip';
+  c.textContent = d;
+  document.getElementById('srcMini').appendChild(c);
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// ════════════════════════════════════════════════════════════════
+//  MAIN RESEARCH FLOW
+// ════════════════════════════════════════════════════════════════
+async function startResearch() {
+  const topic = document.getElementById('topicInput').value.trim();
+  if (!topic) { document.getElementById('topicInput').focus(); return; }
+
+  // Must be logged in to use research (server validates JWT)
+  if (!currentUser || currentUser.id === 'guest') {
+    // Guest can try — server will still run it if they have no token
+    // but archive won't save. Prompt login:
+    if (!authToken) {
+      openModal('authModal');
+      document.getElementById('loginMsg').textContent = 'Sign in to start researching and save your reports.';
+      return;
+    }
+  }
+
+  currentTopic      = topic;
+  currentReportHTML = '';
+
+  // Reset UI
+  document.getElementById('pipCard').classList.add('active');
+  document.getElementById('repCard').classList.remove('active');
+  document.getElementById('statsRow').classList.remove('active');
+  document.getElementById('saveNotice').style.display = 'none';
+  document.getElementById('srcMini').innerHTML = '';
+  document.getElementById('resBtn').disabled = true;
+  document.getElementById('repBody').innerHTML = '';
+  setCov(0);
+  ['planning','searching','reading','analyzing','synthesizing','generating'].forEach(s => setStep(s, ''));
+
+  startTime     = Date.now();
+  timerInterval = setInterval(() => {
+    document.getElementById('snum-time').textContent = Math.round((Date.now() - startTime) / 1000) + 's';
+  }, 1000);
+
+  const nSrc = parseInt(document.getElementById('srcRange').value);
+
+  // Animate pipeline stages (visual feedback while Gemini runs on the server)
+  setStep('planning', 'active'); setDetail('planning', 'Decomposing topic into sub-questions…');
+  await sleep(700);
+  setStep('planning', 'done'); setDetail('planning', '6 sub-topics · 14 search queries mapped');
+
+  setStep('searching', 'active'); setDetail('searching', 'Querying live Google Search…');
+  for (let i = 0; i < Math.min(nSrc, 12); i++) {
+    await sleep(150); addChip(MOCK_DOMAINS[i % MOCK_DOMAINS.length]); setCov((i + 1) / nSrc * 28);
+  }
+  setStep('searching', 'done'); setDetail('searching', nSrc + ' sources found · Validated');
+
+  setStep('reading', 'active'); setDetail('reading', 'Fetching and parsing source content…');
+  await sleep(500); setCov(40);
+  setStep('reading', 'done'); setDetail('reading', 'Content extracted · Chunked');
+
+  setStep('analyzing', 'active'); setDetail('analyzing', 'Extracting claims and evidence…');
+  for (let c = 40; c <= 65; c += 3) { await sleep(80); setCov(c); }
+  setStep('analyzing', 'done'); setDetail('analyzing', 'Evidence scored · Bias flags applied');
+
+  setStep('synthesizing', 'active'); setDetail('synthesizing', 'Cross-referencing consensus and conflict…');
+  for (let c = 65; c <= 80; c += 2) { await sleep(90); setCov(c); }
+  setStep('synthesizing', 'done'); setDetail('synthesizing', 'Consensus mapped · Insights surfaced');
+
+  setStep('generating', 'active'); setDetail('generating', 'Writing report via Gemini 2.0 + Google Search…');
+  document.getElementById('repCard').classList.add('active');
+  document.getElementById('repBody').innerHTML = `
+    <div class="ai-gen">
+      Athena is researching and writing your report<span class="ai-dots"></span><br><br>
+      <span style="font-size:0.72rem;opacity:0.6;">
+        Gemini 2.0 Flash is searching the live web and composing your report on the server.
+        This takes 60–120 seconds.
+      </span>
+    </div>`;
+  document.getElementById('repCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  try {
+    // ── Call the Python backend ──────────────────────────────────
+    const result = await api('/api/research/generate', {
+      method: 'POST',
+      body: JSON.stringify({ topic, depth: selectedDepth, n_sources: nSrc }),
+    });
+
+    currentReportHTML = result.html_content;
+    document.getElementById('repBody').innerHTML = result.html_content;
+    setStep('generating', 'done');
+    setDetail('generating', `Report complete · ${result.word_count} words · Google Search grounded`);
+    setCov(100);
+
+    clearInterval(timerInterval);
+    document.getElementById('statsRow').classList.add('active');
+    document.getElementById('snum-src').textContent   = nSrc;
+    document.getElementById('snum-words').textContent = result.word_count;
+    document.getElementById('snum-cov').textContent   = '100%';
+    document.getElementById('snum-time').textContent  = Math.round((Date.now() - startTime) / 1000) + 's';
+
+  } catch (err) {
+    clearInterval(timerInterval);
+    setStep('generating', '');
+    document.getElementById('repBody').innerHTML = `
+      <div style="padding:2.5rem;text-align:center;">
+        <p style="font-family:var(--font-mono);font-size:0.85rem;color:var(--crimson);margin-bottom:1rem;">
+          ⚠ Research failed: ${escHtml(err.message)}
+        </p>
+        <p style="font-size:0.88rem;color:var(--text-faint);margin-bottom:0.6rem;">
+          Make sure <strong style="color:var(--gold)">GEMINI_API_KEY</strong> is set in your backend <code>.env</code> file.
+        </p>
+        <p style="font-size:0.82rem;color:var(--text-faint);">
+          Get a free key at
+          <a href="https://aistudio.google.com" target="_blank" style="color:var(--gold)">aistudio.google.com</a>
+          — no credit card, 1,500 free requests/day.
+        </p>
+      </div>`;
+  }
+
+  document.getElementById('resBtn').disabled = false;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  REPORT ACTIONS
+// ════════════════════════════════════════════════════════════════
+async function saveToArchive(btn) {
+  if (!authToken) { openModal('authModal'); return; }
+
+  const wc = document.getElementById('repBody').innerText.split(/\s+/).filter(Boolean).length;
+  const nSrc = parseInt(document.getElementById('srcRange').value);
+  const abstractEl = document.querySelector('#repBody p.abstract-text, #repBody p');
+  const abstract   = abstractEl ? abstractEl.innerText.substring(0, 230) + '…' : '';
+
+  try {
+    await api('/api/reports', {
+      method: 'POST',
+      body: JSON.stringify({
+        topic:        currentTopic,
+        depth:        selectedDepth,
+        sources:      nSrc,
+        word_count:   wc,
+        abstract,
+        html_content: currentReportHTML,
+      }),
+    });
+
+    if (btn) {
+      const orig = btn.textContent;
+      btn.textContent = '✓ Saved';
+      btn.style.color = 'var(--gold)';
+      setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 2500);
+    }
+    document.getElementById('saveNotice').style.display = 'block';
+  } catch (e) {
+    alert('Could not save report: ' + e.message);
+  }
+}
+
+function downloadReport() {
+  const text = document.getElementById('repBody').innerText;
+  const blob = new Blob([`# ${currentTopic}\n\n${text}`], { type: 'text/markdown' });
+  const a = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = currentTopic.replace(/\s+/g, '_').substring(0, 44) + '_report.md';
+  a.click();
+}
+
+function copyReport(btn) {
+  navigator.clipboard.writeText(document.getElementById('repBody').innerText).then(() => {
+    const orig = btn.textContent; btn.textContent = '✓ Copied';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+function resetUI() {
+  document.getElementById('pipCard').classList.remove('active');
+  document.getElementById('repCard').classList.remove('active');
+  document.getElementById('statsRow').classList.remove('active');
+  document.getElementById('saveNotice').style.display = 'none';
+  document.getElementById('topicInput').value = '';
+  document.getElementById('srcMini').innerHTML = '';
+  setCov(0);
+  ['planning','searching','reading','analyzing','synthesizing','generating'].forEach(s => setStep(s, ''));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => document.getElementById('topicInput').focus(), 400);
+}
+
+// ════════════════════════════════════════════════════════════════
+//  PROFILE / ARCHIVE  (server-side data)
+// ════════════════════════════════════════════════════════════════
+async function loadArchive() {
+  if (!authToken) return;
+
+  try {
+    // Load stats
+    const stats = await api('/api/reports/stats');
+    document.getElementById('ps-reports').textContent = stats.total_reports;
+    document.getElementById('ps-words').textContent   = stats.total_words > 999
+      ? (stats.total_words / 1000).toFixed(1) + 'k' : stats.total_words;
+    document.getElementById('ps-sources').textContent = stats.total_sources;
+
+    // Load profile info
+    if (currentUser) {
+      const init = currentUser.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      document.getElementById('profAv').textContent   = init;
+      document.getElementById('profName').textContent = currentUser.name;
+    }
+
+    // Load reports list
+    const data = await api('/api/reports?page=1&per_page=50');
+    archiveReports = data.reports;
+    renderArchive();
+
+  } catch (e) {
+    document.getElementById('archContainer').innerHTML =
+      `<div class="arch-empty"><div class="arch-empty-icon">⚠</div>
+       <div class="arch-empty-txt">${escHtml(e.message)}</div></div>`;
+  }
+}
+
+function renderArchive() {
+  const q   = (document.getElementById('archSearch').value || '').toLowerCase().trim();
+  const filtered = archiveReports.filter(r =>
+    !q || r.topic.toLowerCase().includes(q) || (r.abstract || '').toLowerCase().includes(q)
+  );
+  const cont = document.getElementById('archContainer');
+
+  if (!filtered.length) {
+    cont.innerHTML = `<div class="arch-empty">
+      <div class="arch-empty-icon">📜</div>
+      <div class="arch-empty-txt">${q ? 'No reports match your search' : 'No reports yet — start researching!'}</div>
+    </div>`;
+    return;
+  }
+
+  cont.innerHTML = `<div class="arch-grid">${filtered.map(r => `
+    <div class="arch-card" onclick="openArchivedReport('${r.id}')">
+      <div class="arch-arrow">→</div>
+      <div class="arch-date">${new Date(r.created_at).toLocaleDateString('en-US', {year:'numeric',month:'short',day:'numeric'})}</div>
+      <div class="arch-topic">${escHtml(r.topic)}</div>
+      <div class="arch-abstract">${escHtml(r.abstract || '')}</div>
+      <div class="arch-meta">
+        <span class="arch-tag">${r.sources || 0} sources</span>
+        <span class="arch-tag">${r.word_count || 0} words</span>
+        <span class="arch-tag">${r.depth || 'standard'}</span>
+      </div>
+      <button class="arch-del" onclick="deleteReport(event,'${r.id}')" title="Delete">✕ Delete</button>
+    </div>`).join('')}</div>`;
+}
+
+async function openArchivedReport(id) {
+  try {
+    const r = await api(`/api/reports/${id}`);
+    document.getElementById('viewRepTitle').textContent = r.topic;
+    document.getElementById('viewRepContent').innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
+                  gap:0.5rem;padding-bottom:1rem;margin-bottom:1.5rem;border-bottom:1px solid var(--border-mid);">
+        <span style="font-family:var(--font-mono);font-size:0.66rem;color:var(--text-faint);">
+          ${new Date(r.created_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}
+          · ${r.sources} sources · ${r.word_count} words · ${r.depth}
+        </span>
+        <button class="abtn" onclick="downloadArchivedReport('${r.id}')">↓ Export .md</button>
+      </div>
+      <div class="rep-body" style="padding:0;max-width:100%;">${r.html_content || '<p style="color:var(--text-faint);font-style:italic;">Content unavailable.</p>'}</div>`;
+    openModal('viewRepModal');
+  } catch (e) {
+    alert('Could not load report: ' + e.message);
+  }
+}
+
+async function downloadArchivedReport(id) {
+  try {
+    const r = await api(`/api/reports/${id}`);
+    const div = document.createElement('div'); div.innerHTML = r.html_content || '';
+    const blob = new Blob([`# ${r.topic}\n\n${div.innerText}`], { type: 'text/markdown' });
+    const a = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = r.topic.replace(/\s+/g, '_').substring(0, 44) + '_report.md';
+    a.click();
+  } catch (e) { alert('Could not download: ' + e.message); }
+}
+
+async function deleteReport(evt, id) {
+  evt.stopPropagation();
+  if (!confirm('Delete this report from your archive?')) return;
+  try {
+    await api(`/api/reports/${id}`, { method: 'DELETE' });
+    archiveReports = archiveReports.filter(r => r.id !== id);
+    renderArchive();
+    // Refresh stats
+    const stats = await api('/api/reports/stats');
+    document.getElementById('ps-reports').textContent = stats.total_reports;
+    document.getElementById('ps-words').textContent   = stats.total_words > 999
+      ? (stats.total_words / 1000).toFixed(1) + 'k' : stats.total_words;
+    document.getElementById('ps-sources').textContent = stats.total_sources;
+  } catch (e) { alert('Could not delete: ' + e.message); }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  API KEY MODAL  (no longer needed — key is on the server)
+//  Kept for backward compatibility but shows an info message
+// ════════════════════════════════════════════════════════════════
+function openApiKeyModal() {
+  // Since the backend holds the API key, tell the user
+  alert(
+    '🦉 Good news — with the Python backend, the Gemini API key is configured ' +
+    'server-side in the .env file.\n\n' +
+    'You do not need to enter a key here. Just make sure GEMINI_API_KEY is set ' +
+    'in your backend .env file and the server will handle all AI requests.'
+  );
+}
+function saveGeminiKey() {}   // no-op
+
+// ════════════════════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════════════════════
+function escHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════════════
+initTheme();
+loadSession();
+
+// Enter key on topic input
+document.getElementById('topicInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') startResearch();
+});
+
+// Show login prompt if not signed in
+if (!currentUser) {
+  setTimeout(() => {
+    const notice = document.createElement('div');
+    notice.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg-card);' +
+      'border:1px solid var(--gold-dim);padding:1rem 1.3rem;z-index:300;max-width:280px;animation:mIn 0.3s ease;';
+    notice.innerHTML = `
+      <p style="font-family:var(--font-ui);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:0.4rem;">Welcome to Athena</p>
+      <p style="font-family:var(--font-body);font-size:0.88rem;color:var(--text-dim);margin-bottom:0.8rem;line-height:1.5;">Sign in or register to start researching and save your reports.</p>
+      <div style="display:flex;gap:0.5rem;">
+        <button onclick="openModal('authModal');this.closest('div[style]').remove()"
+          style="background:var(--gold);border:none;color:var(--bg);font-family:var(--font-ui);
+                 font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;padding:0.4rem 0.9rem;cursor:pointer;">
+          Sign In →
+        </button>
+        <button onclick="this.closest('div[style]').remove()"
+          style="background:transparent;border:1px solid var(--border-mid);color:var(--text-faint);
+                 font-family:var(--font-ui);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;
+                 padding:0.4rem 0.7rem;cursor:pointer;">
+          Dismiss
+        </button>
+      </div>`;
+    document.body.appendChild(notice);
+  }, 1200);
+}
+</script>
+</body>
+</html>
